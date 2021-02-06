@@ -1,16 +1,56 @@
 /* Global =========================== */
 :root {
     --dark-blue: #363f5f;
+    --green: #49AA26;
+    --light-green: #3dd705;
+    --red: #e92929;
 }
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html {
+    /* 
+    15px --> tamanho de fonte padrão do navegador é 16px.
+    Então 93.75% é calculado com base nesse valor.
+    */
+    font-size: 93.75%; 
+}
+
 body {
     background: #f0f2f5;
     font-family: 'Poppins', sans-serif;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    /*
+    A propriedade overflow especifica o que deve acontecer se 
+    o conteúdo estourar a caixa de um elemento.
+    */
+    overflow: hidden;
+    /*
+    A propriedade clip do CSS define uma parte visível de um elemento. 
+    A propriedade clip se aplica apenas a elementos absolutamente posicionados - 
+    ou seja, elementos com posição: absoluta ou posição: fixa.
+    rect(top, right, bottom, left);
+    */
+    clip: rect(0, 0, 0, 0);
+    /*
+    A propriedade CSS white-space é usada para descrever como 
+    os espaços em branco dentro dos elementos são manipulados.
+    nowap - Recolhe os espaços em branco como no normal, 
+    mas suprime as quebras de linha (quebra de texto) no texto.
+    */
+    white-space: nowrap;
+    border-width: 0;
 }
 
 .container {
@@ -28,6 +68,58 @@ h2 {
     margin-bottom: 0.8rem;
     color: var(--dark-blue);
     font-weight: normal;
+}
+
+/* Links & Buttons =========================== */
+
+a {
+    color: var(--green);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--light-green);
+}
+
+button {
+    width: 100%;
+    height: 50px;
+    border: none;
+
+    color: #fff;
+    background: var(--green);
+    padding: 0;
+
+    border-radius: 0.25rem;
+    /*
+    A propriedade CSS cursor especifica o cursor do mouse mostrado 
+    quando o ponteiro do mouse está sobre um elemento.
+    */
+    cursor: pointer;
+}
+
+button:hover {
+    background: var(--light-green);
+}
+
+.button.new {
+    display: inline-block;
+    margin-bottom: .8rem;
+}
+
+.button.cancel{
+    color: var(--red);
+    border: 2px var(--red) solid;
+    border-radius: 0.25rem;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.6;
+}
+
+.button.cancel:hover{
+    opacity: 1;
 }
 
 /* Header =========================== */
@@ -65,6 +157,22 @@ header {
 .card h3 {
     font-weight: normal;
     font-size: 1rem;
+    /*
+    A propriedade CSS  display especifica o tipo de caixa de renderização usada por um elemento.
+    flex - O elemento se comporta como um elemento de bloco e apresenta seu conteúdo de acordo com o modelo flexbox.
+    */
+    display: flex;
+    /* Itens posicionados ao redor do centro */
+    align-items: center;
+    /*
+    A propriedade CSS justify-content define como o navegador distribui o espaço 
+    entre e ao redor dos itens de conteúdo ao longo do eixo principal de um contêiner flexível(flex) 
+    e do eixo embutido de um contêiner de grade(grid).
+    space-between - Distribua os itens uniformemente. 
+    O primeiro item está alinhado com o início, 
+    o último está alinhado com o final.
+    */
+    justify-content: space-between;
 }
 
 .card p {
@@ -74,21 +182,36 @@ header {
 }
 
 .card.total {
-    background: #49AA26;
+    background: var(--green);
     color:#fff;
 }
 
 /* Table =========================== */
+#transaction {
+    display: block;
+    /*
+    A propriedade overflow especifica quando o conteúdo de 
+    um elemento de nível de bloco deve ser cortado, 
+    exibido com barras de rolagem ou se transborda do elemento.
+    */
+    overflow-x: auto;
+}
 #data-table {
     width: 100%;
     border-spacing: 0 0.5rem; /* A propriedade border-spacing define a distância entre as bordas das células adjacentes. */
     color: #969cb3;
+
 }
 
 /* primeiro filho de seus pais */
 table thead th:first-child,
 table tbody td:first-child {
     border-radius: 0.25rem 0 0 0.25rem;
+}
+
+table thead th:last-child,
+table tbody td:last-child {
+    border-radius: 0 0.25rem 0.25rem 0;
 }
 
 
@@ -127,6 +250,70 @@ td.expense {
     color: #e92929;
 }
 
+/* Modal =========================== */
+.modal-overlay {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .7);
+    position: fixed;
+    top:0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    opacity: 0;
+    visibility: hidden;
+    z-index: 999;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal {
+    background: #f0f2f5;
+    padding: 2.4rem;
+}
+
+/* Form =========================== */
+
+#form {
+    max-width: 500px;
+}
+
+#form h2 {
+    margin-top: 0;
+}
+
+input {
+    border: none;
+    border-radius: 0.2rem;
+    padding: 0.8rem;
+
+    width: 100%;
+}
+
+.input-group {
+    margin-top: 0.8rem;
+}
+
+.input-group small {
+    opacity: 0.4;
+}
+
+.input-group.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.input-group.actions .button,
+.input-group.actions button {
+    width: 48%;
+}
+
 
 /* Footer =========================== */
 footer {
@@ -134,4 +321,32 @@ footer {
     padding: 4rem 0 2rem;
     color: var(--dark-blue);
     opacity: 0.6;
+}
+
+
+/* Responsive =========================== */
+
+@media (min-width: 800px) {
+    html {
+        font-size: 87.5%;/* 14px */
+    }
+
+    #balance {
+        /*
+        O elemento se comporta como um elemento de bloco e 
+        apresenta seu conteúdo de acordo com o modelo de grade.
+        */
+        display: grid;
+        /*
+        A propriedade grid-template-columns do CSS define os nomes das linhas e 
+        funções de dimensionamento (track sizing) do grid columns.
+        */
+        grid-template-columns: repeat(3, 1fr);
+
+        /*
+        A propriedade CSS define as lacunas entre linhas e colunas. 
+        É uma abreviação de row-gap e column-gap.
+        */
+        gap: 2rem;
+    }
 }
