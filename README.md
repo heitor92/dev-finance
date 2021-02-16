@@ -43,4 +43,4 @@ Esse projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE.md) para
 
 ---
 
-Projeto criado na Maratona Discover da Rocketseat🚀
+Projeto criado na Maratona Discover da Rocketseat🚀. Agradeço de :heart:.
