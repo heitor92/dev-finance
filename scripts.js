@@ -23,11 +23,11 @@ const Modal = {
     close() {
         //fechar o modal
         //remover a class active do modal
+        Form.clearFields()
         document.querySelector('.modal-overlay')
         .classList.remove('active')
     }
 }
-
 const Storage = {
     get(){
         return JSON.parse(localStorage.getItem("dev.finance:transactions")) || []
@@ -38,13 +38,20 @@ const Storage = {
 }
 
 const Transaction = {
+    ADD: 'add',
+    REMOVE: 'remove',
+    status: '',
+    lastTransaction: Storage.get()[Storage.get().length - 1],
     all: Storage.get(),
     add(transaction){
+        Transaction.status = Transaction.ADD
+        Transaction.lastTransaction = transaction
         Transaction.all.push(transaction)
         App.reload()
     },
     remove(index){
-        Transaction.all.splice(index, 1)
+        Transaction.status = Transaction.REMOVE
+        Transaction.lastTransaction = Transaction.all.splice(index, 1)[0]
         App.reload()
     },
     incomes(){
@@ -67,6 +74,36 @@ const Transaction = {
     },
     total(){
         return Transaction.incomes() + Transaction.expenses()
+    },
+    getExpenses(){
+        let transactions = Transaction.all.slice()
+        transactions = transactions.filter(function (transaction) {
+            return transaction.amount < 0
+        })
+
+        return transactions
+    },
+    getIncomes(){
+        let transactions = Transaction.all.slice()
+        transactions = transactions.filter(function (transaction) {
+            return transaction.amount > 0
+        })
+        return transactions
+    },
+    getLastExpense(){
+        let expenses = Transaction.getExpenses()
+        return expenses[expenses.length - 1]
+    },
+    getLastIncomes(){
+        let incomes = Transaction.getIncomes()
+        return incomes[incomes.length - 1]
+    },
+    getLastTransaction(){
+        return Transaction.all[Transaction.all.length - 1]
+    },
+    clearStatus(){
+        Transaction.status = ''
+        Transaction.lastTransaction = {}
     }
 }
 
@@ -107,19 +144,70 @@ const DOM = {
             <td class="${CSSclass}">${amount}</td>
             <td class="date">${transaction.date}</td>
             <td>
-                <img onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
+                <img class="btn-delete" onclick="Transaction.remove(${index})" src="./assets/minus.svg" alt="Remover transação">
             </td>
         `
 
         return html;
     },
     updateBalance() {
+        let incomeDisplay = document.getElementById('incomeDisplay')
+        let expenseDisplay = document.getElementById('expenseDisplay')
+        let totalDisplay = document.getElementById('totalDisplay')
+        let totalIncome = Transaction.incomes()
+        let totalExpenses = Transaction.expenses()
+        let totalTransactions = Transaction.total()
+        let lastTransaction = Transaction.lastTransaction?.amount ?? 0
+
+
+        if(lastTransaction > 0 && Transaction.status === Transaction.ADD){
+            DOM.animationBalance(incomeDisplay, (totalIncome - lastTransaction), totalIncome)
+            DOM.animationBalance(totalDisplay, (totalTransactions - lastTransaction), totalTransactions)
+
+        }else if(lastTransaction > 0 && Transaction.status === Transaction.REMOVE){
+            DOM.animationBalance(incomeDisplay, (totalIncome + lastTransaction), totalIncome)
+            DOM.animationBalance(totalDisplay, (totalTransactions + lastTransaction), totalTransactions)
+
+        }else if(lastTransaction < 0 && Transaction.status === Transaction.ADD){
+            DOM.animationBalance(expenseDisplay, (totalExpenses - lastTransaction), totalExpenses)
+            DOM.animationBalance(totalDisplay, (totalTransactions - lastTransaction), totalTransactions)
+
+        }else if(lastTransaction < 0 && Transaction.status === Transaction.REMOVE){
+            DOM.animationBalance(expenseDisplay, (totalExpenses + lastTransaction), totalExpenses)
+            DOM.animationBalance(totalDisplay, (totalTransactions + lastTransaction), totalTransactions)
+
+        } else{
+            incomeDisplay.innerHTML = Utils.formatCurrency(Transaction.incomes())
+            expenseDisplay.innerHTML = Utils.formatCurrency(Transaction.expenses())
+            totalDisplay.innerHTML = Utils.formatCurrency(Transaction.total())
+
+        }
+        
+        Transaction.clearStatus()
+        /*
         document.getElementById('incomeDisplay')
         .innerHTML = Utils.formatCurrency(Transaction.incomes())
         document.getElementById('expenseDisplay')
         .innerHTML = Utils.formatCurrency(Transaction.expenses())
         document.getElementById('totalDisplay')
         .innerHTML = Utils.formatCurrency(Transaction.total())
+        */
+        
+    },
+    animationBalance(element, inicio = 0, fim = 0){
+        //console.log(inicio, fim)
+        let obj = {
+            valor: inicio
+        }
+        anime({
+            targets: obj,
+            valor: fim,
+            easing: 'linear',
+            round: 1,
+            update: function() {
+                element.innerHTML = Utils.formatCurrency(obj.valor);
+            }
+        });
     },
     clearTransactions() {
         DOM.transactionsContainer.innerHTML = ""
@@ -165,6 +253,27 @@ const Utils = {
         })
         
         return signal + value
+    },
+
+    formatarMoeda(event){
+        let amount = Form.getValues().amount
+        let signal = Number(amount) < 0 ? "-" : ""
+        if(amount.trim() === ""){
+            amount = "0"
+        }
+        if(!(amount.search(/\./) !== -1)){
+            amount = parseFloat(amount).toFixed(2).toString()
+        }else if (event.keyCode !== 8) {
+            amount = amount.replace(/\.([0-9]{1})$/g, ".$10")
+        }
+        amount = amount.replace(/[\D]+/g, '')
+        amount = amount.replace(/([0-9]{2})$/g, ".$1")
+        amount = parseFloat(amount).toFixed(2).toString()
+        //amount = amount.replace(/[\D]+/g, '')
+        //amount = parseFloat(amount.replace(/^([0-9]+)/g, "$1")).toFixed(2).toString()
+        //amount = parseFloat(amount.replace(/([0-9]{2})$/g, ".$1")).toFixed(2).toString()
+        //amount = amount.replace(/([0-9]+)\.([0-9]{2})$/g, "$1.$2")
+        Form.amount.value = signal + amount
     }
 }
 
@@ -208,7 +317,7 @@ const Form = {
 
     clearFields(){
         Form.description.value = ""
-        Form.amount.value = ""
+        Form.amount.value = "0.00"
         Form.date.value = ""
     },
 

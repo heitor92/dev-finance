@@ -250,6 +250,10 @@ td.expense {
     color: #e92929;
 }
 
+td img.btn-delete {
+    cursor: pointer;
+}
+
 /* Modal =========================== */
 .modal-overlay {
     width: 100%;
